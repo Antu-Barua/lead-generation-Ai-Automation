@@ -1,0 +1,209 @@
+{
+  "name": "lead generation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Instragram Ai agent",
+        "formDescription": "This form is designed to help businesses connect with qualified professionals and potential clients through Instagram. By filling out this form, you provide important information about your business needs, goals, and services. Our AI-powered system will use this information to understand your requirements, qualify the lead, and connect you with the most relevant opportunities or solutions.\n\nPlease provide accurate details so we can better assist your business and ensure a professional and efficient communication process.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Whats are you looking for",
+              "placeholder": "Search keyword"
+            },
+            {
+              "fieldLabel": "Location",
+              "placeholder": "Location"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cb306c86-a265-4193-87c0-49b654454fcb",
+      "name": "On form submission",
+      "webhookId": "182ee33b-eb9c-44c3-a5a0-54714f7242af",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apify~google-search-scraper/run-sync-get-dataset-items?token=apify_api_4tNMRb2gtK8LNRsTcaKuZljeRtDFaL0LZ1q2",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"chatGptSearch\": {\n        \"enableChatGpt\": false\n    },\n    \"focusOnPaidAds\": false,\n    \"forceExactMatch\": false,\n    \"includeIcons\": false,\n    \"includeUnfilteredResults\": false,\n    \"maxPagesPerQuery\": 1,\n    \"maximumLeadsEnrichmentRecords\": 0,\n    \"mobileResults\": false,\n    \"perplexitySearch\": {\n        \"enablePerplexity\": false,\n        \"returnImages\": false,\n        \"returnRelatedQuestions\": false\n    },\n    \"queries\": \"site:instagram.com + {{ $json['Whats are you looking for'] }} {{ $json.Location }}\",\n    \"resultsPerPage\": 50,\n    \"saveHtml\": false,\n    \"saveHtmlToKeyValueStore\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a6694af9-963d-4d96-bb00-979487388268",
+      "name": "HTTP Request",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $json.organicResults;\n\nreturn results\n  .filter(r => r.url && r.url.includes(\"instagram.com\"))\n  .map(r => {\n    return {\n      json: {\n        title: r.title,\n        username: r.channelName,\n        instagramUrl: r.url,\n        followers: r.followersAmount || null,\n        description: r.description || null\n      }\n    };\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "1b3e97af-18a1-40b6-8ac3-994116c2e9cf",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15BO-htt1wBKZLlEQN5e0z8zWH1qN2ObSH93BiWNVLWk",
+          "mode": "list",
+          "cachedResultName": "instragram ai agent 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15BO-htt1wBKZLlEQN5e0z8zWH1qN2ObSH93BiWNVLWk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15BO-htt1wBKZLlEQN5e0z8zWH1qN2ObSH93BiWNVLWk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.title }}",
+            "       Username": "={{ $json.username }}",
+            "instagramUrl": "={{ $json.instagramUrl }}",
+            "followers": "={{ $json.followers }}",
+            "description": "={{ $json.description }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "       Username",
+              "displayName": "       Username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "instagramUrl",
+              "displayName": "instagramUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "followers",
+              "displayName": "followers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        624,
+        0
+      ],
+      "id": "b0d3be03-4245-421e-9cda-d2bc6dcf2339",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8RQ6qpd9DKIDqqle",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2a684c36-855a-41e7-8bf2-2cf6aa346496",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6a9f9f67c1aafcef66eb35765f75de3d029f29825ae2127ffbf475acd37d47c2"
+  },
+  "id": "q1jJre95MAuG55Cy",
+  "tags": []
+}
